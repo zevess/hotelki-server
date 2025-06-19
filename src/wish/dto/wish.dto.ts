@@ -18,6 +18,9 @@ export class WishDto {
     @IsString({ message: "Название должно быть строкой" })
     link: string
 
+    @IsString({ message: "Эмодзи должно быть строкой" })
+    emoji: string
+
     @IsEnum(WISH_PRIORITIES, {message: "Приоритет должен быть LOW, MEDIUM, HIGH или DREAM"})
     priority: WISH_PRIORITIES
 }

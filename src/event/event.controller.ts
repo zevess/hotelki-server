@@ -8,6 +8,21 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 export class EventController {
   constructor(private readonly eventService: EventService) { }
 
+  @Get()
+  async getAll() {
+    return this.eventService.getAll()
+  }
+
+  @Get('by-id/:eventId')
+  async get(@Param('eventId') eventId: string) {
+    return this.eventService.getById(eventId)
+  }
+
+  @Get('by-user/:userId')
+  async getAllUserWishes(@Param('userId') userId: string) {
+    return this.eventService.getByUserId(userId)
+  }
+
   @UsePipes(new ValidationPipe())
   @Post('create')
   @Auth()

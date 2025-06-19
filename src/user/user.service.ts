@@ -19,8 +19,18 @@ export class UserService {
         return user
     }
 
-    async testPost(dto: AuthDto, id: string) {
-        return { dto, id }
+    async updateProfile(dto: AuthDto, userId: string) {
+
+        const { name, avatar } = dto
+
+        return this.prismaService.user.update({
+            where: {
+                id: userId
+            }, data: {
+                name: name,
+                avatar: avatar
+            }
+        })
     }
 
 }

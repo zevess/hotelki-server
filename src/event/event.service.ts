@@ -7,6 +7,27 @@ import { faker } from '@faker-js/faker';
 export class EventService {
     constructor(private prismaService: PrismaService) { }
 
+
+    async getAll(){
+        return await this.prismaService.event.findMany()
+    }
+
+    async getById(eventId: string) {
+        return await this.prismaService.event.findUnique({
+            where: {
+                id: eventId
+            }
+        })
+    }
+
+    async getByUserId(userId: string) {
+        return await this.prismaService.event.findMany({
+            where: {
+                userId: userId
+            }
+        })
+    }
+
     async create(dto: EventDto, userId: string) {
         const { title, date } = dto
         

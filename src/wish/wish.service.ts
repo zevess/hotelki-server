@@ -6,8 +6,28 @@ import { WishDto } from './dto/wish.dto';
 export class WishService {
     constructor(private prismaService: PrismaService) { }
 
+    async getAll(){
+        return await this.prismaService.wish.findMany()
+    }
+
+    async getById(wishId: string) {
+        return await this.prismaService.wish.findUnique({
+            where: {
+                id: wishId
+            }
+        })
+    }
+
+    async getByUserId(userId: string) {
+        return await this.prismaService.wish.findMany({
+            where: {
+                userId: userId
+            }
+        })
+    }
+
     async create(dto: WishDto, userId: string) {
-        const { title, price, priority, link, eventId } = dto
+        const { title, price, priority, link, emoji, eventId } = dto
 
         return await this.prismaService.wish.create({
             data: {
@@ -16,8 +36,34 @@ export class WishService {
                 title: title,
                 priority: priority,
                 link: link,
-                price: price
+                price: price,
+                emoji: emoji
             }
         })
     }
+
+    async update(dto: WishDto, wishId: string) {
+        const { title, price, priority, link, emoji } = dto
+
+        return await this.prismaService.wish.update({
+            where: {
+                id: wishId
+            }, data: {
+                title: title,
+                price: price,
+                priority: priority,
+                link: link,
+                emoji: emoji
+            }
+        })
+    }
+
+    async delete(wishId: string) {
+        await this.prismaService.wish.delete({
+            where: {
+                id: wishId
+            }
+        })
+    }
+
 }

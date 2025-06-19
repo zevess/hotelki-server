@@ -29,7 +29,7 @@ export class AuthService {
         if (!result) throw new UnauthorizedException('Невалидный refresh-токен')
 
         const user = await this.userService.getById(result.id)
-        
+
         const tokens = await this.issueTokens(user.id)
 
         return {
@@ -39,6 +39,9 @@ export class AuthService {
     }
 
     async register(dto: AuthDto) {
+
+        const { email, password, avatar, name } = dto
+
         const oldUser = await this.prisma.user.findUnique({
             where: {
                 email: dto.email
@@ -49,9 +52,11 @@ export class AuthService {
 
         const user = await this.prisma.user.create({
             data: {
-                email: dto.email,
-                name: faker.person.firstName(),
-                password: await hash(dto.password)
+                email: email,
+                avatar: faker.image.avatar(),
+                name: name,
+                // name: faker.person.firstName(),
+                password: await hash(password)
             }
         })
 
@@ -97,5 +102,7 @@ export class AuthService {
 
         return user
     }
+
+    
 
 }
