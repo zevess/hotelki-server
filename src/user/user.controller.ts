@@ -1,28 +1,23 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { CurrentUser } from 'src/auth/decorators/user.decorator';
-import { AuthDto } from 'src/auth/dto/auth.dto';
+import { Authorization } from 'src/auth/decorators/authorization.decorator';
+import { Authorized } from 'src/auth/decorators/authorized.decorator';
+import { UpdateDto } from './dto/update.dto';
+
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
-
-
-  @Get('profile')
-  @Auth()
-  async getProfile(@CurrentUser('id') id: string) {
-    return this.userService.getById(id)
-  }
-
+  
   @Get('by-id/:userId')
   async getUser(@Param('userId') userId: string) {
     return this.userService.getById(userId)
   }
 
+  @Authorization()
   @Patch('update')
-  @Auth()
-  async update(@Body() dto: AuthDto, @CurrentUser('id') id: string) {
+  @HttpCode(HttpStatus.OK)
+  async update(@Body() dto: UpdateDto, @Authorized('id') id: string) {
     return this.userService.updateProfile(dto, id)
   }
 

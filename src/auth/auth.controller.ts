@@ -1,32 +1,58 @@
-import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { Auth } from './decorators/auth.decorator';
+import { Request, Response } from 'express';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { Authorization } from './decorators/authorization.decorator';
+import { Authorized } from './decorators/authorized.decorator';
+
 
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
-  
-  @UsePipes(new ValidationPipe())
-  @HttpCode(200)
+  constructor(private readonly authService: AuthService) { }
+
   @Post('register')
-  async register(@Body() dto: AuthDto){
-    return this.authService.register(dto)
+  @HttpCode(HttpStatus.CREATED)
+  async register(
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: RegisterDto
+  ) {
+    return this.authService.register(res, dto)
   }
 
-  @UsePipes(new ValidationPipe())
-  @HttpCode(200)
   @Post('login')
-  async login(@Body() dto: AuthDto){
-    return this.authService.login(dto)
+  @HttpCode(HttpStatus.OK)
+  async login(
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: LoginDto
+  ) {
+    return this.authService.login(res, dto)
   }
 
-  @UsePipes(new ValidationPipe())
-	@HttpCode(200)
-	@Post('login/access-token')
-	async getNewTokens(@Body() dto: RefreshTokenDto) {
-		return this.authService.getNewTokens(dto.refreshToken)
-	}
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    return this.authService.refresh(req, res)
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.logout(res)
+  }
+
+  @Authorization()
+  @Get("@me")
+  @HttpCode(HttpStatus.OK)
+  async me(@Authorized('id') id: string) {
+    return this.authService.validate(id);
+  }
+
+
 }

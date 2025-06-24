@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+
 import { WishDto } from './dto/wish.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class WishService {
@@ -34,7 +35,7 @@ export class WishService {
                 userId: userId,
                 eventId: eventId,
                 title: title,
-                priority: priority,
+                priority: "DREAM",
                 link: link,
                 price: price,
                 emoji: emoji
@@ -51,7 +52,7 @@ export class WishService {
             }, data: {
                 title: title,
                 price: price,
-                priority: priority,
+                priority: "DREAM",
                 link: link,
                 emoji: emoji
             }

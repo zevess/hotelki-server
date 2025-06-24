@@ -1,44 +1,50 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WishService } from './wish.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { CurrentUser } from 'src/auth/decorators/user.decorator';
+
+
 import { WishDto } from './dto/wish.dto';
+import { Authorization } from 'src/auth/decorators/authorization.decorator';
+import { Authorized } from 'src/auth/decorators/authorized.decorator';
 
 @Controller('wish')
 export class WishController {
   constructor(private readonly wishService: WishService) { }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   async getAll() {
     return this.wishService.getAll()
   }
 
   @Get('by-id/:wishId')
+  @HttpCode(HttpStatus.OK)
   async getWishById(@Param('wishId') wishId: string) {
     return this.wishService.getById(wishId)
   }
 
   @Get('by-user/:userId')
+  @HttpCode(HttpStatus.OK)
   async getAllUserWishes(@Param('userId') userId: string) {
     return this.wishService.getByUserId(userId)
   }
 
-  @UsePipes(new ValidationPipe())
+  @Authorization()
   @Post('create')
-  @Auth()
-  async createWish(@Body() dto: WishDto, @CurrentUser('id') id: string) {
+  @HttpCode(HttpStatus.CREATED)
+  async createWish(@Body() dto: WishDto, @Authorized('id') id: string) {
     return this.wishService.create(dto, id)
   }
 
-  @UsePipes(new ValidationPipe())
+  @Authorization()
   @Patch('update/:wishId')
-  @Auth()
+  @HttpCode(HttpStatus.OK)
   async updateWish(@Body() dto: WishDto, @Param('wishId') wishId: string) {
     return this.wishService.update(dto, wishId)
   }
 
+  @Authorization()
   @Delete('delete/:wishId')
-  @Auth()
+  @HttpCode(HttpStatus.OK)
   async deleteWish(@Param('wishId') wishId: string) {
     return this.wishService.delete(wishId)
   }

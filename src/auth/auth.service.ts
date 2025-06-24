@@ -1,108 +1,181 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-import { faker } from '@faker-js/faker';
 import { hash, verify } from 'argon2';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
-import { AuthDto } from './dto/auth.dto';
-import { UserService } from 'src/user/user.service';
+import type { JwtPayload } from './interfaces/jwt.interface';
+
+import type { Request, Response } from 'express';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { isDev } from 'src/utils/is-dev.utils';
+import { faker } from '@faker-js/faker';
+
 
 @Injectable()
 export class AuthService {
+  private readonly JWT_ACCESS_TOKEN_TTL: string;
+  private readonly JWT_REFRESH_TOKEN_TTL: string;
 
-    constructor(private prisma: PrismaService, private jwt: JwtService, private userService: UserService) { }
+  private readonly COOKIE_DOMAIN: string;
 
-    async login(dto: AuthDto) {
-        const user = await this.validateUser(dto)
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {
+    this.JWT_ACCESS_TOKEN_TTL = configService.getOrThrow<string>(
+      'JWT_ACCESS_TOKEN_TTL',
+    );
+    this.JWT_REFRESH_TOKEN_TTL = configService.getOrThrow<string>(
+      'JWT_REFRESH_TOKEN_TTL',
+    );
 
-        const tokens = await this.issueTokens(user.id)
+    this.COOKIE_DOMAIN = configService.getOrThrow<string>('COOKIE_DOMAIN');
+  }
 
-        return {
-            user: this.returnUserFields(user),
-            ...tokens
-        }
+  async register(res: Response, dto: RegisterDto) {
+    const { name, email, password } = dto;
+
+    const existUser = await this.prismaService.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (existUser) {
+      throw new ConflictException('Пользователь с такой почтой уже существет');
     }
 
-    async getNewTokens(refreshToken: string) {
-        const result = await this.jwt.verifyAsync(refreshToken)
-        if (!result) throw new UnauthorizedException('Невалидный refresh-токен')
+    const user = await this.prismaService.user.create({
+      data: {
+        name,
+        email,
+        password: await hash(password),
+        avatar: faker.image.avatar()
+      },
+    });
 
-        const user = await this.userService.getById(result.id)
+    return this.auth(res, user.id);
+  }
 
-        const tokens = await this.issueTokens(user.id)
+  async login(res: Response, dto: LoginDto) {
+    const { email, password } = dto;
 
-        return {
-            user: this.returnUserFields(user),
-            ...tokens
-        }
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        password: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
     }
 
-    async register(dto: AuthDto) {
+    const isValidPassword = await verify(user.password, password);
 
-        const { email, password, avatar, name } = dto
-
-        const oldUser = await this.prisma.user.findUnique({
-            where: {
-                email: dto.email
-            }
-        })
-
-        if (oldUser) throw new BadRequestException('Пользователь уже существует')
-
-        const user = await this.prisma.user.create({
-            data: {
-                email: email,
-                avatar: faker.image.avatar(),
-                name: name,
-                // name: faker.person.firstName(),
-                password: await hash(password)
-            }
-        })
-
-        const tokens = await this.issueTokens(user.id)
-
-        return {
-            user: this.returnUserFields(user),
-            ...tokens
-        }
-
+    if (!isValidPassword) {
+      throw new NotFoundException('Пользователь не найден');
     }
 
-    private async issueTokens(userId: (string | null)) {
-        const data = { id: userId };
-        const accessToken = this.jwt.sign(data, {
-            expiresIn: '1h'
-        })
-        const refreshToken = this.jwt.sign(data, {
-            expiresIn: '7d'
-        })
+    return this.auth(res, user.id);
+  }
 
-        return { accessToken, refreshToken }
+  async refresh(req: Request, res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Недействительный refresh-токен');
     }
 
-    private returnUserFields(user: User) {
-        return {
-            id: user.id,
-            email: user.email
-        }
+    const payload: JwtPayload = await this.jwtService.verifyAsync(refreshToken);
+
+    if (payload) {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id: payload.id,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('Пользователь не найден');
+      }
+
+      return this.auth(res, user.id);
+    }
+  }
+
+  async logout(res: Response) {
+    this.setCookie(res, 'refreshToken', new Date(0));
+
+    return true;
+  }
+
+  async validate(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
     }
 
-    private async validateUser(dto: AuthDto) {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                email: dto.email
-            }
-        })
+    return user;
+  }
 
-        if (!user) throw new NotFoundException("User not found");
-
-        const isValid = await verify(user.password, dto.password)
-        if (!isValid) throw new UnauthorizedException('Invalid password')
-
-        return user
-    }
-
+  private async auth(res: Response, id: string) {
+    const { accessToken, refreshToken } = this.generateTokens(id);
     
+    const user = await this.validate(id)
 
+    this.setCookie(
+      res,
+      refreshToken,
+      new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+    );
+
+    return { accessToken, user };
+  }
+
+  private generateTokens(id: string) {
+    const payload: JwtPayload = { id };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: this.JWT_ACCESS_TOKEN_TTL,
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: this.JWT_REFRESH_TOKEN_TTL,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private setCookie(res: Response, value: string, expires: Date) {
+    res.cookie('refreshToken', value, {
+      httpOnly: true,
+      domain: this.COOKIE_DOMAIN,
+      expires,
+      secure: !isDev(this.configService),
+      sameSite: isDev(this.configService) ? 'none' : 'lax',
+    });
+  }
 }
