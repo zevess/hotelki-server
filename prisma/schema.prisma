@@ -43,6 +43,8 @@ model Event {
 
   title  String
   date   DateTime
+  emoji  String
+
   user   User?    @relation(fields: [userId], references: [id])
   userId String?
   wish   Wish[]
@@ -57,7 +59,7 @@ model Wish {
 
   title    String
   emoji    String?
-  reserve  Boolean?         @default(false)
+  reserve  Boolean?        @default(false)
   link     String?
   price    Int?
   priority WISH_PRIORITIES

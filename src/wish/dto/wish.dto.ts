@@ -1,4 +1,5 @@
 
+import { WISH_PRIORITIES } from "@prisma/client";
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class WishDto {
@@ -21,9 +22,6 @@ export class WishDto {
     @IsString({ message: "Эмодзи должно быть строкой" })
     emoji: string
 
-    @IsString()
-    priority: string
-
-    // @IsEnum(WISH_PRIORITIES, {message: "Приоритет должен быть LOW, MEDIUM, HIGH или DREAM"})
-    // priority: WISH_PRIORITIES
+    @IsEnum(WISH_PRIORITIES, { message: "Приоритет должен быть LOW, MEDIUM, HIGH или DREAM" })
+    priority: WISH_PRIORITIES
 }

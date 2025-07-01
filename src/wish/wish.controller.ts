@@ -22,6 +22,12 @@ export class WishController {
     return this.wishService.getById(wishId)
   }
 
+  @Get('by-event/:eventId')
+  @HttpCode(HttpStatus.OK)
+  async getWishByEvent(@Param('eventId') eventId: string) {
+    return this.wishService.getByEventId(eventId)
+  }
+
   @Get('by-user/:userId')
   @HttpCode(HttpStatus.OK)
   async getAllUserWishes(@Param('userId') userId: string) {

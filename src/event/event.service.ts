@@ -9,7 +9,7 @@ export class EventService {
     constructor(private prismaService: PrismaService) { }
 
 
-    async getAll(){
+    async getAll() {
         return await this.prismaService.event.findMany()
     }
 
@@ -25,18 +25,22 @@ export class EventService {
         return await this.prismaService.event.findMany({
             where: {
                 userId: userId
+            },
+            include: {
+                wish: true
             }
         })
     }
 
     async create(dto: EventDto, userId: string) {
-        const { title, date } = dto
-        
+        const { title, date, emoji } = dto
+
         return await this.prismaService.event.create({
             data: {
                 title: title,
                 userId: userId,
-                date: faker.date.future()
+                date: date,
+                emoji: emoji,
             }
         })
 

@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class WishService {
     constructor(private prismaService: PrismaService) { }
 
-    async getAll(){
+    async getAll() {
         return await this.prismaService.wish.findMany()
     }
 
@@ -22,7 +22,15 @@ export class WishService {
     async getByUserId(userId: string) {
         return await this.prismaService.wish.findMany({
             where: {
-                userId: userId
+                userId
+            }
+        })
+    }
+
+    async getByEventId(eventId: string) {
+        return await this.prismaService.wish.findMany({
+            where: {
+                eventId
             }
         })
     }
@@ -35,7 +43,7 @@ export class WishService {
                 userId: userId,
                 eventId: eventId,
                 title: title,
-                priority: "DREAM",
+                priority: priority,
                 link: link,
                 price: price,
                 emoji: emoji
