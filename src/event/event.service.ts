@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { EventDto } from './dto/event.dto';
 import { faker } from '@faker-js/faker';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { cyrillicSlugify } from 'src/utils/cyrillicSlugify';
 
 @Injectable()
 export class EventService {
@@ -13,7 +14,7 @@ export class EventService {
         return await this.prismaService.event.findMany()
     }
 
-    async getById(eventId: string) {
+    async getById(eventId: string, slug?: string) {
         return await this.prismaService.event.findUnique({
             where: {
                 id: eventId
@@ -21,15 +22,29 @@ export class EventService {
         })
     }
 
-    async getByUserId(userId: string) {
-        return await this.prismaService.event.findMany({
+    async getByUserId(userId: string, slug?: string) {
+
+        if (!slug) {
+            return await this.prismaService.event.findMany({
+                where: {
+                    userId: userId
+                },
+                include: {
+                    wish: true
+                }
+            })
+        }
+
+        return await this.prismaService.event.findFirst({
             where: {
-                userId: userId
+                userId: userId,
+                slug: slug
             },
-            include: {
+            include:{
                 wish: true
             }
         })
+
     }
 
     async create(dto: EventDto, userId: string) {
@@ -41,18 +56,21 @@ export class EventService {
                 userId: userId,
                 date: date,
                 emoji: emoji,
+                slug: cyrillicSlugify(title)
             }
         })
 
     }
 
     async update(dto: EventDto, id: string) {
+        const { title, date, } = dto
         return await this.prismaService.event.update({
             where: {
                 id
             }, data: {
-                date: faker.date.future(),
-                title: dto.title
+                date: date,
+                title: title,
+                slug: cyrillicSlugify(title)
             }
         })
     }

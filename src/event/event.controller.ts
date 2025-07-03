@@ -26,6 +26,13 @@ export class EventController {
     return this.eventService.getByUserId(userId)
   }
 
+  @Get('by-user/:userId/:slug')
+  @HttpCode(HttpStatus.OK)
+  async getAllUserWishesBySlug(@Param('userId') userId: string, @Param('slug') slug?: string) {
+    return this.eventService.getByUserId(userId, slug)
+  }
+
+
   @Authorization()
   @Post('create')
   @HttpCode(HttpStatus.CREATED)

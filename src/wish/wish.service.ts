@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { WishDto } from './dto/wish.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { cyrillicSlugify } from 'src/utils/cyrillicSlugify';
 
 @Injectable()
 export class WishService {
@@ -23,6 +24,9 @@ export class WishService {
         return await this.prismaService.wish.findMany({
             where: {
                 userId
+            },
+            include: {
+                event: true
             }
         })
     }
@@ -46,7 +50,8 @@ export class WishService {
                 priority: priority,
                 link: link,
                 price: price,
-                emoji: emoji
+                emoji: emoji,
+                slug: cyrillicSlugify(title)
             }
         })
     }
@@ -62,7 +67,8 @@ export class WishService {
                 price: price,
                 priority: "DREAM",
                 link: link,
-                emoji: emoji
+                emoji: emoji,
+                slug: cyrillicSlugify(title)
             }
         })
     }
