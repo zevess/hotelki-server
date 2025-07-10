@@ -20,13 +20,22 @@ export class WishService {
         })
     }
 
-    async getByUserId(userId: string) {
-        return await this.prismaService.wish.findMany({
+    async getByUserId(userId: string, slug?: string) {
+        if (!slug) {
+            return await this.prismaService.wish.findMany({
+                where: {
+                    userId
+                },
+                include: {
+                    event: true
+                }
+            })
+        }
+
+        return await this.prismaService.wish.findFirst({
             where: {
-                userId
-            },
-            include: {
-                event: true
+                userId: userId,
+                slug: slug
             }
         })
     }
@@ -57,7 +66,7 @@ export class WishService {
     }
 
     async update(dto: WishDto, wishId: string) {
-        const { title, price, priority, link, emoji } = dto
+        const { title, price, priority, link, emoji, eventId } = dto
 
         return await this.prismaService.wish.update({
             where: {
@@ -65,9 +74,10 @@ export class WishService {
             }, data: {
                 title: title,
                 price: price,
-                priority: "DREAM",
+                priority: priority,
                 link: link,
                 emoji: emoji,
+                eventId: eventId,
                 slug: cyrillicSlugify(title)
             }
         })

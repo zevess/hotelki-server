@@ -63,19 +63,27 @@ export class EventService {
     }
 
     async update(dto: EventDto, id: string) {
-        const { title, date, } = dto
+        const { title, date, emoji} = dto
         return await this.prismaService.event.update({
             where: {
                 id
             }, data: {
                 date: date,
                 title: title,
-                slug: cyrillicSlugify(title)
+                slug: cyrillicSlugify(title),
+                emoji: emoji,
             }
         })
     }
 
     async delete(id: string) {
+
+        await this.prismaService.wish.deleteMany({
+            where:{
+                eventId: id
+            }
+        })
+
         await this.prismaService.event.delete({
             where: {
                 id

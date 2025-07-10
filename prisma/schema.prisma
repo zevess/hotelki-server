@@ -67,8 +67,8 @@ model Wish {
   priority WISH_PRIORITIES
   slug     String
 
-  event   Event  @relation(fields: [eventId], references: [id])
-  eventId String
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id])
 
   user   User   @relation(fields: [userId], references: [id])
   userId String

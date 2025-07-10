@@ -8,7 +8,7 @@ import { UpdateDto } from './dto/update.dto';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
-  
+
   @Get('by-id/:userId')
   async getUser(@Param('userId') userId: string) {
     return this.userService.getById(userId)

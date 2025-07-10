@@ -34,6 +34,12 @@ export class WishController {
     return this.wishService.getByUserId(userId)
   }
 
+  @Get('by-user/:userId/:slug')
+  @HttpCode(HttpStatus.OK)
+  async getUserWishBySlug(@Param('userId') userId: string, @Param('slug') slug: string) {
+    return this.wishService.getByUserId(userId, slug)
+  }
+
   @Authorization()
   @Post('create')
   @HttpCode(HttpStatus.CREATED)

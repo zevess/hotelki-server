@@ -8,8 +8,9 @@ export class WishDto {
     @IsNotEmpty({ message: "Название не должно быть пустым" })
     title: string
 
+    @IsOptional()
     @IsString({ message: "id события должно быть строкой" })
-    @IsNotEmpty({ message: "id события не должно быть пустым" })
+    // @IsNotEmpty({ message: "id события не должно быть пустым" })
     eventId: string
 
     @IsNumber({}, { message: "Стоимость должна быть числом" })

@@ -30,7 +30,7 @@ export class UserService {
                 id: userId
             }, data: {
                 name: name,
-                // avatar: avatar
+                // avatar: 
             }
         })
     }
