@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { WishDto } from './dto/wish.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { cyrillicSlugify } from 'src/utils/cyrillicSlugify';
+import { cyrillicSlugify } from 'src/lib/utils/cyrillicSlugify';
 
 @Injectable()
 export class WishService {

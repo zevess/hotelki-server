@@ -7,6 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { WishModule } from './wish/wish.module';
 import { EventModule } from './event/event.module';
 import { UserModule } from './user/user.module';
+import { EmailConfirmationModule } from './auth/email-confirmation/email-confirmation.module';
+import { MailModule } from './lib/mail/mail.module';
+
+
 
 @Module({
   imports: [
@@ -17,7 +21,9 @@ import { UserModule } from './user/user.module';
     AuthModule,
     WishModule,
     EventModule,
-    UserModule
+    UserModule,
+    MailModule,
+    EmailConfirmationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

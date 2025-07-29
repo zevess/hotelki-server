@@ -14,8 +14,10 @@ import type { JwtPayload } from './interfaces/jwt.interface';
 import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { isDev } from 'src/utils/is-dev.utils';
+
 import { faker } from '@faker-js/faker';
+import { isDev } from 'src/lib/utils/is-dev.utils';
+import { EmailConfirmationService } from './email-confirmation/email-confirmation.service';
 
 
 @Injectable()
@@ -29,6 +31,7 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly emailConfirmationService: EmailConfirmationService
   ) {
     this.JWT_ACCESS_TOKEN_TTL = configService.getOrThrow<string>(
       'JWT_ACCESS_TOKEN_TTL',
@@ -58,11 +61,17 @@ export class AuthService {
         name,
         email,
         password: await hash(password),
-        avatar: faker.image.avatar()
+        avatar: "https://i.ibb.co/chBSqBxn/default-avatar.jpg"
       },
     });
 
-    return this.auth(res, user.id);
+
+    await this.emailConfirmationService.sendVerificationToken(user.email)
+
+    return {
+      message: "Вы успешно зарегистрировались. Пожалуйста, подтвердите ваш email. Сообщение было отправлено на ваш почтовый адрес"
+    }
+    // return this.auth(res, user.id);
   }
 
   async login(res: Response, dto: LoginDto) {
@@ -138,9 +147,9 @@ export class AuthService {
     return user;
   }
 
-  private async auth(res: Response, id: string) {
+  public async auth(res: Response, id: string) {
     const { accessToken, refreshToken } = this.generateTokens(id);
-    
+
     const user = await this.validate(id)
 
     this.setCookie(

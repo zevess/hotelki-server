@@ -28,12 +28,21 @@ model User {
   role ROLE   @default(USER)
   wish Wish[]
 
+  isVerified Boolean @default(false)
+
   @@map("user")
 }
 
-enum ROLE {
-  USER
-  ADMIN
+model Token {
+  id        String     @id @default(cuid())
+  email     String
+  token     String     @unique
+  type      TOKEN_TYPE
+  expiresIn DateTime   @map("expires_in")
+
+  createdAt DateTime @default(now()) @map("createt_at")
+
+  @@map("tokens")
 }
 
 model Event {
@@ -76,9 +85,20 @@ model Wish {
   @@map("wish")
 }
 
+enum ROLE {
+  USER
+  ADMIN
+}
+
 enum WISH_PRIORITIES {
   LOW
   MEDIUM
   HIGH
   DREAM
+}
+
+enum TOKEN_TYPE {
+  VERIFICATION
+  TWO_FACTOR
+  PASSWORD_RESET
 }
