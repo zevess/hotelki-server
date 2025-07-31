@@ -6,8 +6,3 @@ export class ConfirmationDto{
     token: string
 }
 
-// export class EmailConfirmationDto{
-//     @IsString({message: "email должен быть строкой"})
-//     @IsNotEmpty({message: "Поле email не должно быть пустым"})
-//     email: string
-// }

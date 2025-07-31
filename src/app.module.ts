@@ -9,6 +9,7 @@ import { EventModule } from './event/event.module';
 import { UserModule } from './user/user.module';
 import { EmailConfirmationModule } from './auth/email-confirmation/email-confirmation.module';
 import { MailModule } from './lib/mail/mail.module';
+import { PasswordRecoveryModule } from './auth/password-recovery/password-recovery.module';
 
 
 
@@ -24,6 +25,7 @@ import { MailModule } from './lib/mail/mail.module';
     UserModule,
     MailModule,
     EmailConfirmationModule,
+    PasswordRecoveryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
