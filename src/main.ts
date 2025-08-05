@@ -20,8 +20,6 @@ async function bootstrap() {
     exposedCredentials: "set-cookie"
   })
 
-
-
   await app.listen(process.env.PORT ?? 4200);
 }
 bootstrap();

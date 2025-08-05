@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-
 import { EventDto } from './dto/event.dto';
-import { faker } from '@faker-js/faker';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { cyrillicSlugify } from 'src/lib/utils/cyrillicSlugify';
 

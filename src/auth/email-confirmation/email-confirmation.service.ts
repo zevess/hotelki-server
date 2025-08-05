@@ -1,6 +1,6 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { TOKEN_TYPE, User } from '@prisma/client';
-import { Request, Response } from 'express';
+import { TOKEN_TYPE } from '@prisma/client';
+import { Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid'
 import { ConfirmationDto } from './dto/confirmation.dto';
@@ -19,7 +19,7 @@ export class EmailConfirmationService {
         private readonly authService: AuthService
     ) { }
 
-    public async newVerification(req: Request, res: Response, dto: ConfirmationDto) {
+    public async newVerification(res: Response, dto: ConfirmationDto) {
         const existingToken = await this.prismaService.token.findUnique({
             where: {
                 token: dto.token,

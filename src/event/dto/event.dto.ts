@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsDate, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsDate, IsNotEmpty, IsString } from "class-validator";
 
 export class EventDto {
     @IsString({ message: "Название должно быть строкой" })

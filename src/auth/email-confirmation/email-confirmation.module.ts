@@ -5,8 +5,6 @@ import { MailModule } from 'src/lib/mail/mail.module';
 import { AuthModule } from '../auth.module';
 import { UserService } from 'src/user/user.service';
 import { MailService } from 'src/lib/mail/mail.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthService } from '../auth.service';
 
 @Module({
   imports: [MailModule, forwardRef(() => AuthModule)],

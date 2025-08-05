@@ -5,17 +5,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-
 import { hash, verify } from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { JwtPayload } from './interfaces/jwt.interface';
-
 import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-
-import { faker } from '@faker-js/faker';
 import { isDev } from 'src/lib/utils/is-dev.utils';
 import { EmailConfirmationService } from './email-confirmation/email-confirmation.service';
 
