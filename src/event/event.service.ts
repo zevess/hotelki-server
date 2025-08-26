@@ -16,6 +16,10 @@ export class EventService {
         return await this.prismaService.event.findUnique({
             where: {
                 id: eventId
+            },
+            include: {
+                user: true,
+
             }
         })
     }
@@ -28,7 +32,8 @@ export class EventService {
                     userId: userId
                 },
                 include: {
-                    wish: true
+                    wish: true,
+                    user: true
                 }
             })
         }
@@ -38,12 +43,37 @@ export class EventService {
                 userId: userId,
                 slug: slug
             },
-            include:{
-                wish: true
+            include: {
+                wish: true,
+                user: true
             }
         })
-
     }
+
+    // async getByUsername(userId: string, slug?: string) {
+
+    //     if (!slug) {
+    //         return await this.prismaService.event.findMany({
+    //             where: {
+    //                 userId: userId
+    //             },
+    //             include: {
+    //                 wish: true
+    //             }
+    //         })
+    //     }
+
+    //     return await this.prismaService.event.findFirst({
+    //         where: {
+    //             userId: userId,
+    //             slug: slug
+    //         },
+    //         include:{
+    //             wish: true
+    //         }
+    //     })
+
+    // }
 
     async create(dto: EventDto, userId: string) {
         const { title, date, emoji } = dto
@@ -55,13 +85,16 @@ export class EventService {
                 date: date,
                 emoji: emoji,
                 slug: cyrillicSlugify(title)
+            },
+            include: {
+                user: true
             }
         })
 
     }
 
     async update(dto: EventDto, id: string) {
-        const { title, date, emoji} = dto
+        const { title, date, emoji } = dto
         return await this.prismaService.event.update({
             where: {
                 id
@@ -70,6 +103,9 @@ export class EventService {
                 title: title,
                 slug: cyrillicSlugify(title),
                 emoji: emoji,
+            },
+            include: {
+                user: true
             }
         })
     }
@@ -77,14 +113,16 @@ export class EventService {
     async delete(id: string) {
 
         await this.prismaService.wish.deleteMany({
-            where:{
+            where: {
                 eventId: id
             }
         })
 
-        await this.prismaService.event.delete({
+        return await this.prismaService.event.delete({
             where: {
                 id
+            }, include: {
+                user: true
             }
         })
     }

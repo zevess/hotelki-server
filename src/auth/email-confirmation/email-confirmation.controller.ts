@@ -5,18 +5,18 @@ import { ConfirmationDto } from './dto/confirmation.dto';
 
 @Controller('auth/email-confirmation')
 export class EmailConfirmationController {
-  constructor(private readonly emailConfirmationService: EmailConfirmationService) {}
+  constructor(private readonly emailConfirmationService: EmailConfirmationService) { }
 
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  public async newVerification(@Res({ passthrough: true }) res: Response, @Body() dto: ConfirmationDto){
+  public async newVerification(@Res({ passthrough: true }) res: Response, @Body() dto: ConfirmationDto) {
     return this.emailConfirmationService.newVerification(res, dto)
   }
 
   @Post("send-token")
   @HttpCode(HttpStatus.OK)
-  public async sendToken(@Body("email") email: string){
+  public async sendToken(@Body("email") email: string) {
     return this.emailConfirmationService.sendVerificationToken(email)
   }
 

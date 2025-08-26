@@ -16,6 +16,10 @@ export class WishService {
         return await this.prismaService.wish.findUnique({
             where: {
                 id: wishId
+            },
+            include: {
+                event: true,
+                user: true
             }
         })
     }
@@ -27,7 +31,8 @@ export class WishService {
                     userId
                 },
                 include: {
-                    event: true
+                    event: true,
+                    user: true
                 }
             })
         }
@@ -36,6 +41,10 @@ export class WishService {
             where: {
                 userId: userId,
                 slug: slug
+            },
+            include: {
+                event: true,
+                user: true
             }
         })
     }
@@ -44,6 +53,10 @@ export class WishService {
         return await this.prismaService.wish.findMany({
             where: {
                 eventId
+            },
+            include: {
+                event: true,
+                user: true
             }
         })
     }
@@ -61,6 +74,9 @@ export class WishService {
                 price: price,
                 emoji: emoji,
                 slug: cyrillicSlugify(title)
+            },
+            include: {
+                user: true
             }
         })
     }
@@ -79,14 +95,20 @@ export class WishService {
                 emoji: emoji,
                 eventId: eventId,
                 slug: cyrillicSlugify(title)
+            },
+            include: {
+                user: true
             }
         })
     }
 
     async delete(wishId: string) {
-        await this.prismaService.wish.delete({
+        return await this.prismaService.wish.delete({
             where: {
                 id: wishId
+            },
+            include: {
+                user: true
             }
         })
     }

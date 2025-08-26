@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -20,6 +20,7 @@ model User {
 
   email    String @unique
   name     String
+  username String @unique @default(cuid())
   avatar   String @default("/uploads/default-avatar.jpg")
   password String
 
@@ -29,6 +30,9 @@ model User {
   wish Wish[]
 
   isVerified Boolean @default(false)
+
+  requestsSent     Friends[] @relation("requests_sent")
+  requestsReceived Friends[] @relation("requests_received")
 
   @@map("user")
 }
@@ -56,8 +60,8 @@ model Event {
 
   slug String
 
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
   wish   Wish[]
 
   @@map("event")
@@ -75,14 +79,30 @@ model Wish {
   price    Int?
   priority WISH_PRIORITIES
   slug     String
-
-  eventId String?
-  event   Event?  @relation(fields: [eventId], references: [id])
+  eventId  String?
+  event    Event?          @relation(fields: [eventId], references: [id])
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
   @@map("wish")
+}
+
+model Friends {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  status FriendStatus @default(PENDING)
+
+  sender   User   @relation("requests_sent", fields: [senderId], references: [id])
+  senderId String
+
+  receiver   User   @relation("requests_received", fields: [receiverId], references: [id])
+  receiverId String
+
+  @@unique([senderId, receiverId])
+  @@map("friends")
 }
 
 enum ROLE {
@@ -95,6 +115,12 @@ enum WISH_PRIORITIES {
   MEDIUM
   HIGH
   DREAM
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
 }
 
 enum TOKEN_TYPE {

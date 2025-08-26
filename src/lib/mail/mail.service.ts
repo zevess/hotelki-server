@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { render } from '@react-email/components';
 import { ConfirmationTemplate } from './templates/confirmation.template';
-import { Resend } from 'resend';
 import { ResetPasswordTemplate } from './templates/reset-password.template';
-
+import * as nodemailer from 'nodemailer'
 
 @Injectable()
 export class MailService {
@@ -26,13 +25,24 @@ export class MailService {
 
     private async sendMail(email: string, subject: string, html: string) {
 
-        const resend = new Resend(process.env.MAIL_PASSWORD)
+        const user = this.configService.getOrThrow<string>("EMAIL")
+        const password = this.configService.getOrThrow<string>("PASSWORD")
 
-        await resend.emails.send({
-            from: 'Hotelki App <onboarding@resend.dev>',
-            to: [email],
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com', 
+            port: 587,
+            secure: false,
+            auth: {
+                user: user, 
+                pass: password,
+            },
+        })
+
+        await transporter.sendMail({
+            from: 'Hotelki App',
+            to: email,
             subject: subject,
-            html: html,
+            html: html
         })
 
     }

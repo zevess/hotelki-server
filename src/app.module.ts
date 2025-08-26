@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { EmailConfirmationModule } from './auth/email-confirmation/email-confirmation.module';
 import { MailModule } from './lib/mail/mail.module';
 import { PasswordRecoveryModule } from './auth/password-recovery/password-recovery.module';
+import { FriendModule } from './friend/friend.module';
 
 
 
@@ -17,6 +18,7 @@ import { PasswordRecoveryModule } from './auth/password-recovery/password-recove
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`
     }),
     PrismaModule,
     AuthModule,
@@ -26,6 +28,7 @@ import { PasswordRecoveryModule } from './auth/password-recovery/password-recove
     MailModule,
     EmailConfirmationModule,
     PasswordRecoveryModule,
+    FriendModule,
   ],
   controllers: [AppController],
   providers: [AppService],

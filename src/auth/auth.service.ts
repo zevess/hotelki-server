@@ -62,12 +62,12 @@ export class AuthService {
     });
 
 
-    await this.emailConfirmationService.sendVerificationToken(user.email)
+    // await this.emailConfirmationService.sendVerificationToken(user.email)
 
-    return {
-      message: "Вы успешно зарегистрировались. Пожалуйста, подтвердите ваш email. Сообщение было отправлено на ваш почтовый адрес"
-    }
-    // return this.auth(res, user.id);
+    // return {
+    //   message: "Вы успешно зарегистрировались. Пожалуйста, подтвердите ваш email. Сообщение было отправлено на ваш почтовый адрес"
+    // }
+    return this.auth(res, user.id);
   }
 
   async login(res: Response, dto: LoginDto) {
