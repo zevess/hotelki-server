@@ -124,7 +124,7 @@ export class AuthService {
   }
 
   async logout(res: Response) {
-    this.setCookie(res, 'refreshToken', new Date(0));
+    this.setCookie(res, '', new Date(0));
 
     return true;
   }
